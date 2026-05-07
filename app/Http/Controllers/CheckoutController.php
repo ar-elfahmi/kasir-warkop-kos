@@ -1,0 +1,115 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Transaction;
+use App\Models\TransactionItem;
+use App\Models\TransactionItemTopping;
+use App\Services\CartService;
+use Illuminate\Http\Request;
+
+class CheckoutController extends Controller
+{
+    public function __construct(
+        protected CartService $cart
+    ) {}
+
+    public function checkout()
+    {
+        $cartItems = $this->cart->items();
+        $cartTotal = $this->cart->total();
+
+        if (empty($cartItems)) {
+            return redirect('/pos');
+        }
+
+        return view('pos.checkout', compact('cartItems', 'cartTotal'));
+    }
+
+    public function process(Request $request)
+    {
+        $cartItems = $this->cart->items();
+        if (empty($cartItems)) {
+            return redirect('/pos');
+        }
+
+        $validated = $request->validate([
+            'payment_method' => 'required|in:tunai,qris',
+            'paid_amount' => 'required_if:payment_method,tunai|integer|min:0|nullable',
+        ]);
+
+        $paymentMethod = $validated['payment_method'];
+        $cartTotal = $this->cart->total();
+
+        if ($paymentMethod === 'qris') {
+            $paidAmount = $cartTotal;
+            $changeAmount = 0;
+        } else {
+            $paidAmount = (int) $validated['paid_amount'];
+            $changeAmount = $paidAmount - $cartTotal;
+        }
+
+        foreach ($cartItems as $item) {
+            $variant = \App\Models\Variant::find($item['variant_id']);
+            if (!$variant) {
+                continue;
+            }
+            if ($variant->stock < $item['qty']) {
+                return redirect()->back()->withErrors([
+                    'stock' => "Stok {$variant->menuItem?->name} tidak mencukupi. Tersedia: {$variant->stock}, diminta: {$item['qty']}",
+                ]);
+            }
+        }
+
+        $transaction = Transaction::create([
+            'total' => $cartTotal,
+            'payment_method' => $paymentMethod,
+            'paid_amount' => $paidAmount,
+            'change_amount' => $changeAmount,
+        ]);
+
+        foreach ($cartItems as $item) {
+            $variant = \App\Models\Variant::find($item['variant_id']);
+            if (!$variant) {
+                continue;
+            }
+
+            $itemTotal = $variant->price * $item['qty'];
+            foreach ($item['toppings'] as $t) {
+                $itemTotal += $t['price'] * $item['qty'];
+            }
+
+            $transactionItem = TransactionItem::create([
+                'transaction_id' => $transaction->id,
+                'variant_id' => $variant->id,
+                'item_name' => $variant->menuItem?->name ?? 'Item',
+                'variant_label' => $variant->size ? ucfirst($variant->size) : 'Reguler',
+                'qty' => $item['qty'],
+                'unit_price' => $variant->price,
+                'total_price' => $itemTotal,
+            ]);
+
+            foreach ($item['toppings'] as $t) {
+                TransactionItemTopping::create([
+                    'transaction_item_id' => $transactionItem->id,
+                    'topping_id' => $t['id'],
+                    'topping_name' => $t['name'],
+                    'topping_price' => $t['price'],
+                ]);
+            }
+
+            $variant->decrement('stock', $item['qty']);
+        }
+
+        $this->cart->clear();
+
+        return redirect("/pos/receipt/{$transaction->id}");
+    }
+
+    public function receipt(Transaction $transaction)
+    {
+        $transaction->load('items.toppings');
+
+        return view('pos.receipt', compact('transaction'));
+    }
+}
