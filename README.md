@@ -1,58 +1,96 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏪 Kasir Warkop Kos
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem POS kasir untuk **Warkop Kos** — warung kop sederhana. Mobile-first web app dibangun dengan Laravel + Blade + Tailwind CSS.
 
-## About Laravel
+## Fitur
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+| Fitur | Keterangan |
+|-------|------------|
+| **Auth** | Login username/password, ganti password (Laravel Breeze) |
+| **POS Kasir** | Grid menu, filter kategori, pilih variant/ukuran, tambah topping, hitung total otomatis |
+| **Checkout** | Bayar Tunai/QRIS, validasi stok, kurangi stok otomatis, cetak struk di layar |
+| **Manajemen Menu** | CRUD item, variant (small/jumbo), assign topping ke item |
+| **Manajemen Stok** | Lihat stok per variant, restok dengan catatan audit |
+| **Laporan** | Filter tanggal, rekap per kategori + item terjual, riwayat transaksi |
+| **Dashboard** | Ringkasan penjualan hari ini (total, jumlah transaksi, item terjual) |
+| **Responsive** | Bottom nav mobile (5 tab), desktop sidebar |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend:** Laravel 13 (PHP 8.3)
+- **Frontend:** Blade + Tailwind CSS + Alpine.js
+- **Database:** PostgreSQL (production), SQLite (development/test)
+- **Auth:** Laravel Breeze (session-based, username + password)
+- **Build:** Vite
 
-## Learning Laravel
+## Persyaratan
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP 8.3+
+- Composer
+- Node.js 20+
+- SQLite (local) / PostgreSQL (production)
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Instalasi Lokal
 
 ```bash
-composer require laravel/boost --dev
+# Clone
+git clone https://github.com/ar-elfahmi/kasir-warkop-kos.git
+cd kasir-warkop-kos
 
-php artisan boost:install
+# Backend
+composer install
+cp .env.example .env
+php artisan key:generate
+
+# Database (SQLite)
+touch database/database.sqlite
+php artisan migrate --seed
+
+# Frontend
+npm install
+npm run build
+
+# Jalankan
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Buka `http://localhost:8000`.
 
-## Contributing
+## Akun Default
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Username | Password |
+|----------|----------|
+| `kasir` | `kasir123` |
 
-## Code of Conduct
+## Menjalankan Test
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artisan test
+# 62 tests, 165 assertions, all green
+```
 
-## Security Vulnerabilities
+## Deployment ke Railway
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Push ke GitHub
+2. Buka [Railway](https://railway.app) → New Project → Deploy from GitHub
+3. Add **PostgreSQL** plugin
+4. Set environment variables:
+   - `APP_KEY` — hasil dari `php artisan key:generate`
+   - `APP_NAME` → `Warkop Kos`
+   - `APP_ENV` → `production`
+   - `APP_DEBUG` → `false`
+   - `DB_CONNECTION` → `pgsql`
+5. Railway auto-build + migrate (`php artisan migrate --force`) setiap deploy
 
-## License
+## Struktur Database
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```
+categories → menu_items → variants (size/price/stock)
+                         → toppings (many-to-many via menu_item_topping)
+transactions → transaction_items → transaction_item_toppings
+stock_entries (audit trail restok)
+```
+
+## Lisensi
+
+MIT
