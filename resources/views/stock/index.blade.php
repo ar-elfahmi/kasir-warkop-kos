@@ -1,30 +1,28 @@
 <x-app-layout>
     <div class="max-w-4xl mx-auto p-4">
         <div class="flex justify-between items-center mb-4">
-            <h1 class="text-xl font-bold">Stok</h1>
-            <a href="/stock/restock" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
+            <h1 class="text-xl font-bold text-deep-charcoal">Stok</h1>
+            <a href="/stock/restock" class="px-3 py-3 bg-success-green text-white rounded-8 text-sm font-semibold h-12 inline-flex items-center hover:bg-green-700 transition">
                 + Tambah Stok
             </a>
         </div>
 
-        <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+        <div class="bg-white border border-light-border rounded-8 overflow-hidden shadow-l1 mb-6">
             <table class="w-full text-sm">
-                <thead class="bg-gray-50">
+                <thead class="bg-very-light-gray">
                     <tr>
-                        <th class="text-left px-4 py-3 font-medium">Item</th>
-                        <th class="text-left px-4 py-3 font-medium">Variant</th>
-                        <th class="text-right px-4 py-3 font-medium">Harga</th>
-                        <th class="text-right px-4 py-3 font-medium">Stok</th>
+                        <th class="text-left px-4 py-3 font-semibold text-deep-charcoal">Item</th>
+                        <th class="text-left px-4 py-3 font-semibold text-deep-charcoal">Kategori</th>
+                        <th class="text-right px-4 py-3 font-semibold text-deep-charcoal">Stok</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y">
-                    @foreach ($variants as $variant)
+                <tbody class="divide-y divide-light-border">
+                    @foreach ($menuItems as $item)
                         <tr>
-                            <td class="px-4 py-3">{{ $variant->menuItem?->name ?? '—' }}</td>
-                            <td class="px-4 py-3">{{ $variant->size ? ucfirst($variant->size) : 'Reguler' }}</td>
-                            <td class="px-4 py-3 text-right">Rp {{ number_format($variant->price, 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-right {{ $variant->stock <= 5 ? 'text-red-600 font-bold' : '' }}">
-                                {{ $variant->stock }}
+                            <td class="px-4 py-3 text-deep-charcoal font-semibold">{{ $item->name }}</td>
+                            <td class="px-4 py-3 text-deep-charcoal">{{ $item->category?->name ?? '—' }}</td>
+                            <td class="px-4 py-3 text-right {{ $item->stock <= 5 ? 'text-error-red font-bold' : 'text-deep-charcoal' }}">
+                                {{ $item->stock }}
                             </td>
                         </tr>
                     @endforeach
@@ -32,21 +30,21 @@
             </table>
         </div>
 
-        <h2 class="text-lg font-bold mb-3">Riwayat Restok</h2>
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <h2 class="text-lg font-bold text-deep-charcoal mb-3">Riwayat Restok</h2>
+        <div class="bg-white border border-light-border rounded-8 overflow-hidden shadow-l1">
             @forelse ($stockEntries as $entry)
-                <div class="flex justify-between items-center px-4 py-3 border-b text-sm">
+                <div class="flex justify-between items-center px-4 py-3 border-b border-light-border text-sm">
                     <div>
-                        <p class="font-medium">{{ $entry->variant?->menuItem?->name ?? '—' }} ({{ $entry->variant?->size ? ucfirst($entry->variant->size) : 'Reguler' }})</p>
-                        <p class="text-gray-500 text-xs">{{ $entry->note ?? '—' }}</p>
+                        <p class="font-semibold text-deep-charcoal">{{ $entry->menuItem?->name ?? '—' }}</p>
+                        <p class="text-zinc-text text-xs">{{ $entry->note ?? '—' }}</p>
                     </div>
                     <div class="text-right">
-                        <p class="text-green-600 font-medium">+{{ $entry->quantity }}</p>
-                        <p class="text-gray-400 text-xs">{{ $entry->created_at->format('d/m/Y H:i') }}</p>
+                        <p class="text-success-green font-semibold">+{{ $entry->quantity }}</p>
+                        <p class="text-light-gray text-xs">{{ $entry->created_at->format('d/m/Y H:i') }}</p>
                     </div>
                 </div>
             @empty
-                <p class="text-gray-400 text-center py-8">Belum ada riwayat restok</p>
+                <p class="text-light-gray text-center py-8">Belum ada riwayat restok</p>
             @endforelse
         </div>
     </div>

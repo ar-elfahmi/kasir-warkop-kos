@@ -13,12 +13,11 @@ class StockTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_stock_page_shows_variants_and_stock(): void
+    public function test_stock_page_shows_menu_items_and_stock(): void
     {
         $user = User::factory()->create();
         $cat = Category::create(['name' => 'Minuman']);
-        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi']);
-        Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 5000, 'stock' => 10]);
+        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi', 'stock' => 10]);
 
         $response = $this->actingAs($user)->get('/stock');
 
@@ -31,8 +30,7 @@ class StockTest extends TestCase
     {
         $user = User::factory()->create();
         $cat = Category::create(['name' => 'Minuman']);
-        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi']);
-        Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 5000, 'stock' => 10]);
+        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi', 'stock' => 10]);
 
         $response = $this->actingAs($user)->get('/stock/restock');
 
@@ -44,21 +42,20 @@ class StockTest extends TestCase
     {
         $user = User::factory()->create();
         $cat = Category::create(['name' => 'Minuman']);
-        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi']);
-        $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 5000, 'stock' => 10]);
+        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi', 'stock' => 10]);
 
         $response = $this->actingAs($user)->post('/stock/restock', [
-            'variant_id' => $variant->id,
+            'menu_item_id' => $item->id,
             'quantity' => 5,
             'note' => 'Restok dari supplier',
         ]);
 
         $response->assertRedirect('/stock');
-        $variant->refresh();
-        $this->assertEquals(15, $variant->stock);
+        $item->refresh();
+        $this->assertEquals(15, $item->stock);
 
         $this->assertDatabaseHas('stock_entries', [
-            'variant_id' => $variant->id,
+            'menu_item_id' => $item->id,
             'quantity' => 5,
             'note' => 'Restok dari supplier',
         ]);
@@ -69,21 +66,20 @@ class StockTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post('/stock/restock', [
-            'variant_id' => '',
+            'menu_item_id' => '',
             'quantity' => '',
         ]);
 
-        $response->assertSessionHasErrors(['variant_id', 'quantity']);
+        $response->assertSessionHasErrors(['menu_item_id', 'quantity']);
     }
 
     public function test_restock_history_shows_on_stock_page(): void
     {
         $user = User::factory()->create();
         $cat = Category::create(['name' => 'Minuman']);
-        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi']);
-        $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 5000, 'stock' => 10]);
+        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi', 'stock' => 10]);
         $this->actingAs($user)->post('/stock/restock', [
-            'variant_id' => $variant->id,
+            'menu_item_id' => $item->id,
             'quantity' => 5,
             'note' => 'Restok dari supplier',
         ]);

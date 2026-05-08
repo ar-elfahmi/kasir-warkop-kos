@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-deep-charcoal leading-tight">
             Dashboard
         </h2>
     </x-slot>
@@ -14,34 +14,34 @@
             @endphp
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <p class="text-gray-500 text-sm">Penjualan Hari Ini</p>
-                    <p class="text-2xl font-bold">Rp {{ number_format($todayTotal, 0, ',', '.') }}</p>
+                <div class="bg-white shadow-l1 rounded-8 p-6">
+                    <p class="text-medium-gray text-sm">Penjualan Hari Ini</p>
+                    <p class="text-2xl font-bold text-deep-charcoal">Rp {{ number_format($todayTotal, 0, ',', '.') }}</p>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <p class="text-gray-500 text-sm">Transaksi Hari Ini</p>
-                    <p class="text-2xl font-bold">{{ $todayCount }}</p>
+                <div class="bg-white shadow-l1 rounded-8 p-6">
+                    <p class="text-medium-gray text-sm">Transaksi Hari Ini</p>
+                    <p class="text-2xl font-bold text-deep-charcoal">{{ $todayCount }}</p>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <p class="text-gray-500 text-sm">Item Terjual</p>
-                    <p class="text-2xl font-bold">{{ $todayItems }}</p>
+                <div class="bg-white shadow-l1 rounded-8 p-6">
+                    <p class="text-medium-gray text-sm">Item Terjual</p>
+                    <p class="text-2xl font-bold text-deep-charcoal">{{ $todayItems }}</p>
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white shadow-l1 rounded-8">
                 <div class="p-6">
-                    <h3 class="font-semibold text-lg mb-3">Aksi Cepat</h3>
+                    <h3 class="font-semibold text-lg text-deep-charcoal mb-3">Aksi Cepat</h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <a href="{{ route('pos.index') }}" class="px-4 py-3 bg-blue-600 text-white rounded-lg text-center text-sm font-medium">
+                        <a href="{{ route('pos.index') }}" class="px-4 py-3 bg-slate-btn text-white rounded-8 text-center text-sm font-semibold hover:bg-gray-600 transition">
                             POS Kasir
                         </a>
-                        <a href="{{ route('menu-items.index') }}" class="px-4 py-3 bg-green-600 text-white rounded-lg text-center text-sm font-medium">
+                        <a href="{{ route('menu-items.index') }}" class="px-4 py-3 bg-success-green text-white rounded-8 text-center text-sm font-semibold hover:bg-green-700 transition">
                             Atur Menu
                         </a>
-                        <a href="{{ route('stock.restock') }}" class="px-4 py-3 bg-yellow-600 text-white rounded-lg text-center text-sm font-medium">
+                        <a href="{{ route('stock.restock') }}" class="px-4 py-3 bg-slate-btn text-white rounded-8 text-center text-sm font-semibold hover:bg-gray-600 transition">
                             Restok
                         </a>
-                        <a href="{{ route('laporan.index') }}" class="px-4 py-3 bg-purple-600 text-white rounded-lg text-center text-sm font-medium">
+                        <a href="{{ route('laporan.index') }}" class="px-4 py-3 bg-slate-btn text-white rounded-8 text-center text-sm font-semibold hover:bg-gray-600 transition">
                             Laporan
                         </a>
                     </div>

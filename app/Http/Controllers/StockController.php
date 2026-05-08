@@ -2,40 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MenuItem;
 use App\Models\StockEntry;
-use App\Models\Variant;
 use Illuminate\Http\Request;
 
 class StockController extends Controller
 {
     public function index()
     {
-        $variants = Variant::with('menuItem.category')->get();
-        $stockEntries = StockEntry::with('variant.menuItem')->latest()->get();
+        $menuItems = MenuItem::with('category')->get();
+        $stockEntries = StockEntry::with('menuItem')->latest()->get();
 
-        return view('stock.index', compact('variants', 'stockEntries'));
+        return view('stock.index', compact('menuItems', 'stockEntries'));
     }
 
     public function restock()
     {
-        $variants = Variant::with('menuItem')->get();
+        $menuItems = MenuItem::with('variants')->get();
 
-        return view('stock.restock', compact('variants'));
+        return view('stock.restock', compact('menuItems'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'variant_id' => 'required|exists:variants,id',
+            'menu_item_id' => 'required|exists:menu_items,id',
             'quantity' => 'required|integer|min:1',
             'note' => 'nullable|string|max:255',
         ]);
 
-        $variant = Variant::findOrFail($validated['variant_id']);
-        $variant->increment('stock', $validated['quantity']);
+        $menuItem = MenuItem::findOrFail($validated['menu_item_id']);
+        $menuItem->increment('stock', $validated['quantity']);
 
         StockEntry::create([
-            'variant_id' => $variant->id,
+            'menu_item_id' => $menuItem->id,
             'quantity' => $validated['quantity'],
             'note' => $validated['note'],
         ]);

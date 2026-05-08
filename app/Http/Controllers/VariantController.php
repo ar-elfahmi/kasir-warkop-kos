@@ -9,16 +9,14 @@ class VariantController extends Controller
 {
     public function store(Request $request)
     {
-        
         $validated = $request->validate([
             'menu_item_id' => ['required', 'exists:menu_items,id'],
             'size' => ['nullable', 'string'],
             'price' => ['required', 'numeric'],
-            'stock' => ['required', 'integer'],
         ]);
 
-        Variant::create($validated);
+        $variant = Variant::create($validated);
 
-        return redirect('/dashboard');
+        return redirect()->route('menu-items.edit', $variant->menu_item_id);
     }
 }

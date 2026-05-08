@@ -1,44 +1,44 @@
 <x-app-layout>
     <div class="max-w-lg mx-auto p-4">
-        <h1 class="text-xl font-bold mb-4">Tambah Stok</h1>
+        <h1 class="text-xl font-bold text-deep-charcoal mb-4">Tambah Stok</h1>
 
-        <form method="POST" action="/stock/restock" class="bg-white rounded-lg shadow p-4 space-y-4">
+        <form method="POST" action="/stock/restock" class="bg-white border border-light-border rounded-8 p-4 space-y-4 shadow-l1">
             @csrf
 
             <div>
-                <label class="block font-medium text-sm mb-1">Item</label>
-                <select name="variant_id" class="w-full border rounded-lg p-2">
+                <label class="block font-medium text-sm text-slate-btn mb-1">Item</label>
+                <select name="menu_item_id" class="w-full border border-light-border bg-very-light-gray rounded-6 p-3 h-12 text-deep-charcoal focus:border-slate-btn focus:ring-slate-btn">
                     <option value="">Pilih item...</option>
-                    @foreach ($variants as $variant)
-                        <option value="{{ $variant->id }}" {{ old('variant_id') == $variant->id ? 'selected' : '' }}>
-                            {{ $variant->menuItem?->name ?? '—' }} — {{ $variant->size ? ucfirst($variant->size) : 'Reguler' }} (stok: {{ $variant->stock }})
+                    @foreach ($menuItems as $item)
+                        <option value="{{ $item->id }}" {{ old('menu_item_id') == $item->id ? 'selected' : '' }}>
+                            {{ $item->name }} (stok: {{ $item->stock }})
                         </option>
                     @endforeach
                 </select>
-                @error('variant_id')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @error('menu_item_id')
+                    <p class="text-error-red text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
             <div>
-                <label class="block font-medium text-sm mb-1">Jumlah</label>
+                <label class="block font-medium text-sm text-slate-btn mb-1">Jumlah</label>
                 <input type="number" name="quantity" value="{{ old('quantity') }}"
-                    class="w-full border rounded-lg p-2" min="1">
+                    class="w-full border border-light-border bg-very-light-gray rounded-6 p-3 h-12 text-deep-charcoal focus:border-slate-btn focus:ring-slate-btn" min="1">
                 @error('quantity')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    <p class="text-error-red text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
             <div>
-                <label class="block font-medium text-sm mb-1">Catatan (opsional)</label>
+                <label class="block font-medium text-sm text-slate-btn mb-1">Catatan (opsional)</label>
                 <input type="text" name="note" value="{{ old('note') }}"
-                    class="w-full border rounded-lg p-2" placeholder="Misal: dari supplier">
+                    class="w-full border border-light-border bg-very-light-gray rounded-6 p-3 h-12 text-deep-charcoal focus:border-slate-btn focus:ring-slate-btn" placeholder="Misal: dari supplier">
                 @error('note')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    <p class="text-error-red text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
-            <button type="submit" class="w-full py-2 bg-blue-600 text-white font-medium rounded-lg">
+            <button type="submit" class="w-full py-3 bg-success-green text-white font-semibold rounded-8 h-12 hover:bg-green-700 transition">
                 Simpan
             </button>
         </form>

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -12,6 +13,19 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+        // Disable foreign key checks for truncation
+        DB::statement('PRAGMA foreign_keys = OFF;');
+
+        // Truncate tables in reverse foreign key order
+        \App\Models\User::truncate();
+        \App\Models\Variant::truncate();
+        \App\Models\StockEntry::truncate();
+        \App\Models\MenuItem::truncate();
+        \App\Models\Category::truncate();
+
+        // Re-enable foreign key checks after truncation
+        DB::statement('PRAGMA foreign_keys = ON;');
+
         \App\Models\Category::insert([
             ['id' => 1, 'name' => 'Main Course'],
             ['id' => 2, 'name' => 'Noodle'],
@@ -51,7 +65,11 @@ class DatabaseSeeder extends Seeder
 
         $variants = [];
         foreach ($menuItems as $item) {
-            $mi = \App\Models\MenuItem::create($item);
+            $mi = \App\Models\MenuItem::create([
+                'category_id' => $item['category_id'],
+                'name' => $item['name'],
+                'stock' => 100,
+            ]);
             $price = match ($item['category_id']) {
                 1 => 12000,
                 2 => match (true) {
@@ -66,7 +84,6 @@ class DatabaseSeeder extends Seeder
                 'menu_item_id' => $mi->id,
                 'size' => null,
                 'price' => $price,
-                'stock' => 100,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
@@ -134,13 +151,13 @@ class DatabaseSeeder extends Seeder
             $mi = \App\Models\MenuItem::create([
                 'category_id' => $item['cat'],
                 'name' => $item['name'],
+                'stock' => 100,
             ]);
             if (isset($item['price'])) {
                 $variants[] = [
                     'menu_item_id' => $mi->id,
                     'size' => null,
                     'price' => $item['price'],
-                    'stock' => 100,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -150,7 +167,6 @@ class DatabaseSeeder extends Seeder
                         'menu_item_id' => $mi->id,
                         'size' => 'small',
                         'price' => $item['small'],
-                        'stock' => 100,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
@@ -160,7 +176,6 @@ class DatabaseSeeder extends Seeder
                         'menu_item_id' => $mi->id,
                         'size' => 'jumbo',
                         'price' => $item['jumbo'],
-                        'stock' => 100,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];

@@ -9,10 +9,10 @@ class StockEntry extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['variant_id', 'quantity', 'note'];
+    protected $fillable = ['menu_item_id', 'quantity', 'note'];
 
-    public function variant()
+    public function menuItem()
     {
-        return $this->belongsTo(Variant::class);
+        return $this->belongsTo(MenuItem::class);
     }
 }

@@ -9,7 +9,12 @@ class MenuItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['category_id', 'name', 'description'];
+    protected $fillable = ['category_id', 'name', 'description', 'stock'];
+
+    public function stockEntries()
+    {
+        return $this->hasMany(StockEntry::class);
+    }
 
     public function category()
     {

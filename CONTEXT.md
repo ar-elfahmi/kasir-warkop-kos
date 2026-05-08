@@ -8,7 +8,7 @@
 | Kasir | User tunggal yang menjalankan sistem (pemilik warung) |
 | Kategori | Pengelompokan menu: Minuman, Makanan, Rokok |
 | Menu Item | Satu produk (kopi, mie, rokok, dll) |
-| Variant | Varian item: ukuran untuk minuman (besar/kecil), single untuk makanan/rokok |
+| Variant | Varian item: ukuran untuk minuman (besar/kecil), single untuk makanan/rokok. Stok di level menu item (shared antar variant) |
 | Topping | Tambahan untuk makanan, menambah harga, bisa multiple |
 | Transaksi | Pencatatan penjualan: pilih menu → qty → topping → bayar |
 | Stok | Jumlah barang jadi (finished goods), otomatis berkurang saat transaksi |
@@ -42,8 +42,9 @@ Sistem kasir untuk Warkop Kos (warung kopi). Fitur: POS, manajemen menu, transak
 - Block order kalau stok kurang
 
 ### Stok
+- Level menu item (bukan per variant). Variant minuman (besar/kecil) share stok.
 - Otomatis berkurang saat transaksi
-- Manual restock via tabel `stock_entries` (audit trail)
+- Manual restock via tabel `stock_entries` (audit trail), update `menu_items.stock`
 - Track barang jadi (bukan bahan baku)
 
 ### Laporan

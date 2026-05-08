@@ -19,6 +19,7 @@ class VariantTest extends TestCase
             'category_id' => $category->id,
             'name' => 'Kopi Susu',
             'description' => 'Kopi dengan susu',
+            'stock' => 0,
         ]);
 
         $response = $this->actingAs(\App\Models\User::factory()->create())
@@ -26,7 +27,6 @@ class VariantTest extends TestCase
                 'menu_item_id' => $menuItem->id,
                 'size' => 'besar',
                 'price' => 15000,
-                'stock' => 20,
             ]);
 
         $response->assertRedirect();
@@ -34,7 +34,6 @@ class VariantTest extends TestCase
             'menu_item_id' => $menuItem->id,
             'size' => 'besar',
             'price' => 15000,
-            'stock' => 20,
         ]);
     }
 }

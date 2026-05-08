@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MenuItem;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
 use App\Models\TransactionItemTopping;
 use App\Services\CartService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
 {
@@ -46,59 +48,92 @@ class CheckoutController extends Controller
             $changeAmount = 0;
         } else {
             $paidAmount = (int) $validated['paid_amount'];
+
+            if ($paidAmount < $cartTotal) {
+                return redirect()->back()->withErrors([
+                    'paid_amount' => 'Jumlah bayar tidak boleh kurang dari total tagihan'
+                ]);
+            }
+
             $changeAmount = $paidAmount - $cartTotal;
         }
 
+        // Aggregate qty per menu_item_id
+        $itemQtyMap = [];
         foreach ($cartItems as $item) {
             $variant = \App\Models\Variant::find($item['variant_id']);
-            if (!$variant) {
+            if (!$variant || !$variant->menuItem) {
                 continue;
             }
-            if ($variant->stock < $item['qty']) {
-                return redirect()->back()->withErrors([
-                    'stock' => "Stok {$variant->menuItem?->name} tidak mencukupi. Tersedia: {$variant->stock}, diminta: {$item['qty']}",
-                ]);
+            $menuItemId = $variant->menu_item_id;
+            if (!isset($itemQtyMap[$menuItemId])) {
+                $itemQtyMap[$menuItemId] = 0;
             }
+            $itemQtyMap[$menuItemId] += $item['qty'];
         }
 
-        $transaction = Transaction::create([
-            'total' => $cartTotal,
-            'payment_method' => $paymentMethod,
-            'paid_amount' => $paidAmount,
-            'change_amount' => $changeAmount,
-        ]);
+        try {
+            $transaction = null;
 
-        foreach ($cartItems as $item) {
-            $variant = \App\Models\Variant::find($item['variant_id']);
-            if (!$variant) {
-                continue;
-            }
+            DB::transaction(function () use ($cartItems, $cartTotal, $paymentMethod, $paidAmount, $changeAmount, $itemQtyMap, &$transaction) {
+                // Check stock with lockForUpdate
+                foreach ($itemQtyMap as $menuItemId => $totalQty) {
+                    $menuItem = MenuItem::where('id', $menuItemId)->lockForUpdate()->first();
+                    if (!$menuItem || $menuItem->stock < $totalQty) {
+                        $name = $menuItem?->name ?? 'Item';
+                        $available = $menuItem?->stock ?? 0;
+                        throw new \Exception("Stok {$name} tidak mencukupi. Tersedia: {$available}, diminta: {$totalQty}");
+                    }
+                }
 
-            $itemTotal = $variant->price * $item['qty'];
-            foreach ($item['toppings'] as $t) {
-                $itemTotal += $t['price'] * $item['qty'];
-            }
-
-            $transactionItem = TransactionItem::create([
-                'transaction_id' => $transaction->id,
-                'variant_id' => $variant->id,
-                'item_name' => $variant->menuItem?->name ?? 'Item',
-                'variant_label' => $variant->size ? ucfirst($variant->size) : 'Reguler',
-                'qty' => $item['qty'],
-                'unit_price' => $variant->price,
-                'total_price' => $itemTotal,
-            ]);
-
-            foreach ($item['toppings'] as $t) {
-                TransactionItemTopping::create([
-                    'transaction_item_id' => $transactionItem->id,
-                    'topping_id' => $t['id'],
-                    'topping_name' => $t['name'],
-                    'topping_price' => $t['price'],
+                $transaction = Transaction::create([
+                    'total' => $cartTotal,
+                    'payment_method' => $paymentMethod,
+                    'paid_amount' => $paidAmount,
+                    'change_amount' => $changeAmount,
                 ]);
-            }
 
-            $variant->decrement('stock', $item['qty']);
+                foreach ($cartItems as $item) {
+                    $variant = \App\Models\Variant::find($item['variant_id']);
+                    if (!$variant) {
+                        continue;
+                    }
+
+                    $itemTotal = $variant->price * $item['qty'];
+                    foreach ($item['toppings'] as $t) {
+                        $itemTotal += $t['price'] * $item['qty'];
+                    }
+
+                    $transactionItem = TransactionItem::create([
+                        'transaction_id' => $transaction->id,
+                        'variant_id' => $variant->id,
+                        'item_name' => $variant->menuItem?->name ?? 'Item',
+                        'variant_label' => $variant->size ? ucfirst($variant->size) : 'Reguler',
+                        'qty' => $item['qty'],
+                        'unit_price' => $variant->price,
+                        'total_price' => $itemTotal,
+                    ]);
+
+                    foreach ($item['toppings'] as $t) {
+                        TransactionItemTopping::create([
+                            'transaction_item_id' => $transactionItem->id,
+                            'topping_id' => $t['id'],
+                            'topping_name' => $t['name'],
+                            'topping_price' => $t['price'],
+                        ]);
+                    }
+
+                    // Decrement menuItem.stock
+                    $menuItem = $variant->menuItem;
+                    if ($menuItem) {
+                        $menuItem->decrement('stock', $item['qty']);
+                    }
+                }
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([
+                'stock' => $e->getMessage(),
+            ]);
         }
 
         $this->cart->clear();

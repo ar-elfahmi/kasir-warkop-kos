@@ -4,12 +4,12 @@
         <div class="flex-1 overflow-y-auto p-4 pb-32 lg:pb-4">
             {{-- Category Filter --}}
             <div class="flex gap-2 overflow-x-auto pb-3 mb-4" id="category-filter">
-                <button class="category-btn px-4 py-2 rounded-full text-sm font-medium bg-blue-600 text-white"
+                <button class="category-btn px-3 py-1.5 rounded-full text-sm font-medium bg-slate-btn text-white whitespace-nowrap"
                     data-category="all">
                     Semua
                 </button>
                 @foreach ($categories as $category)
-                    <button class="category-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 whitespace-nowrap"
+                    <button class="category-btn px-3 py-1.5 rounded-full text-sm font-medium bg-very-light-gray text-slate-btn hover:bg-light-border whitespace-nowrap"
                         data-category="{{ $category->id }}">
                         {{ $category->name }}
                     </button>
@@ -17,30 +17,32 @@
             </div>
 
             {{-- Menu Grid --}}
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3" id="menu-grid">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" id="menu-grid">
                 @foreach ($menuItems as $item)
-                    <div class="menu-card bg-white rounded-lg shadow p-3 cursor-pointer hover:shadow-md transition"
+                    <div class="menu-card bg-white border border-light-border rounded-8 shadow-l1 hover:shadow-l3 cursor-pointer transition-shadow"
                         data-category="{{ $item->category_id }}"
                         data-item="{{ $item->id }}">
-                        <h3 class="font-semibold text-sm mb-2">{{ $item->name }}</h3>
-                        <div class="space-y-1">
-                            @foreach ($item->variants as $variant)
-                                <div class="variant-btn text-xs bg-gray-50 rounded p-2 border hover:bg-blue-50 hover:border-blue-300 {{ $variant->stock <= 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }}"
-                                    data-variant-id="{{ $variant->id }}"
-                                    data-variant-label="{{ $variant->size ? ucfirst($variant->size) : 'Reguler' }}"
-                                    data-variant-price="{{ $variant->price }}"
-                                    data-item-name="{{ $item->name }}"
-                                    data-toppings='@json($item->toppings->map(fn($t) => ['id' => $t->id, 'name' => $t->name, 'price' => $t->price]))'
-                                    data-stock="{{ $variant->stock }}">
-                                    <span class="font-medium">{{ $variant->size ? ucfirst($variant->size) : 'Reguler' }}</span>
-                                    <span class="text-blue-600">Rp {{ number_format($variant->price, 0, ',', '.') }}</span>
-                                    @if ($variant->stock <= 0)
-                                        <span class="block text-red-500 font-medium mt-1">Stok Habis</span>
-                                    @elseif ($variant->stock <= 5)
-                                        <span class="block text-orange-500 text-xs mt-1">Sisa {{ $variant->stock }}</span>
-                                    @endif
-                                </div>
-                            @endforeach
+                        <div class="p-3">
+                            <h3 class="font-semibold text-base text-deep-charcoal mb-2">{{ $item->name }}</h3>
+                            <div class="space-y-1">
+                                @foreach ($item->variants as $variant)
+                            <div class="variant-btn text-sm bg-very-light-gray rounded-6 p-2 border border-light-border hover:border-slate-btn {{ $item->stock <= 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }}"
+                                         data-variant-id="{{ $variant->id }}"
+                                         data-variant-label="{{ $variant->size ? ucfirst($variant->size) : 'Reguler' }}"
+                                         data-variant-price="{{ $variant->price }}"
+                                         data-item-name="{{ $item->name }}"
+                                         data-toppings='@json($item->toppings->map(fn($t) => ['id' => $t->id, 'name' => $t->name, 'price' => $t->price]))'
+                                         data-stock="{{ $item->stock }}">
+                                         <span class="font-medium text-deep-charcoal">{{ $variant->size ? ucfirst($variant->size) : 'Reguler' }}</span>
+                                         <span class="text-deep-charcoal font-semibold">Rp {{ number_format($variant->price, 0, ',', '.') }}</span>
+                                         @if ($item->stock <= 0)
+                                             <span class="block text-error-red font-medium mt-1 text-xs">Stok Habis</span>
+                                         @elseif ($item->stock <= 5)
+                                             <span class="block text-warning-red text-xs mt-1">Sisa {{ $item->stock }}</span>
+                                         @endif
+                                     </div>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                 @endforeach
@@ -48,8 +50,8 @@
         </div>
 
         {{-- Cart Panel --}}
-        <div class="w-full lg:w-96 bg-white border-l p-4 flex flex-col">
-            <h2 class="text-lg font-bold mb-3">Pesanan</h2>
+        <div class="w-full lg:w-96 bg-white border-l border-light-border p-4 flex flex-col">
+            <h2 class="text-lg font-bold text-deep-charcoal mb-3">Pesanan</h2>
 
             <div class="flex-1 overflow-y-auto space-y-2 mb-4">
                 @forelse ($cartItems as $key => $item)
@@ -62,13 +64,13 @@
                             $subtotal += $t['price'] * $item['qty'];
                         }
                     @endphp
-                    <div class="bg-gray-50 rounded p-3 text-sm">
+                    <div class="bg-very-light-gray rounded-8 p-3 text-sm">
                         <div class="flex justify-between items-start">
                             <div class="flex-1">
-                                <p class="font-medium">{{ $itemName }}</p>
-                                <p class="text-gray-500 text-xs">{{ $sizeLabel }} x{{ $item['qty'] }}</p>
+                                <p class="font-semibold text-deep-charcoal">{{ $itemName }}</p>
+                                <p class="text-zinc-text text-xs">{{ $sizeLabel }} x{{ $item['qty'] }}</p>
                                 @if (!empty($item['toppings']))
-                                    <p class="text-xs text-gray-400">
+                                    <p class="text-xs text-light-gray">
                                         @foreach ($item['toppings'] as $t)
                                             + {{ $t['name'] }}
                                             @if (!$loop->last)
@@ -79,22 +81,22 @@
                                 @endif
                             </div>
                             <div class="text-right flex-shrink-0 ml-2">
-                                <p class="font-medium">Rp {{ number_format($subtotal, 0, ',', '.') }}</p>
+                                <p class="font-semibold text-deep-charcoal">Rp {{ number_format($subtotal, 0, ',', '.') }}</p>
                                 <form action="/pos/cart/remove" method="POST" class="inline">
                                     @csrf
                                     <input type="hidden" name="key" value="{{ $key }}">
-                                    <button class="text-red-500 text-xs hover:underline">Hapus</button>
+                                    <button class="text-error-red text-xs hover:underline">Hapus</button>
                                 </form>
                             </div>
                         </div>
                     </div>
                 @empty
-                    <p class="text-gray-400 text-center py-8">Belum ada pesanan</p>
+                    <p class="text-light-gray text-center py-8">Belum ada pesanan</p>
                 @endforelse
             </div>
 
-            <div class="border-t pt-3 space-y-3">
-                <div class="flex justify-between text-lg font-bold">
+            <div class="border-t border-light-border pt-3 space-y-3">
+                <div class="flex justify-between text-lg font-bold text-deep-charcoal">
                     <span>Total</span>
                     <span>Rp {{ number_format($cartTotal, 0, ',', '.') }}</span>
                 </div>
@@ -102,13 +104,13 @@
                     @if (!empty($cartItems))
                         <form action="/pos/cart/clear" method="POST" class="flex-1">
                             @csrf
-                            <button class="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">
+                            <button class="w-full px-3 py-3 bg-slate-btn text-white rounded-8 text-sm font-semibold h-12 hover:bg-gray-600 transition">
                                 Hapus Semua
                             </button>
                         </form>
                     @endif
                     <a href="/pos/checkout"
-                       class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium text-center {{ empty($cartItems) ? 'opacity-50 pointer-events-none' : '' }}">
+                       class="flex-1 px-3 py-3 bg-success-green text-white rounded-8 text-sm font-semibold h-12 text-center flex items-center justify-center hover:bg-green-700 transition {{ empty($cartItems) ? 'opacity-50 pointer-events-none' : '' }}">
                         Bayar
                     </a>
                 </div>
@@ -118,34 +120,34 @@
 
     {{-- Modal --}}
     <div id="item-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-md w-full p-5">
-            <h3 class="text-lg font-bold mb-4" id="modal-item-name">Item</h3>
+        <div class="bg-white rounded-8 max-w-md w-full p-5 shadow-l3">
+            <h3 class="text-lg font-bold text-deep-charcoal mb-4" id="modal-item-name">Item</h3>
 
             <form id="add-to-cart-form" method="POST" action="/pos/cart/add">
                 @csrf
                 <input type="hidden" name="variant_id" id="modal-variant-id">
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium mb-1">Jumlah</label>
+                    <label class="block text-sm font-medium text-slate-btn mb-1">Jumlah</label>
                     <div class="flex items-center gap-3">
-                        <button type="button" class="qty-btn w-10 h-10 rounded-full bg-gray-200 text-lg font-bold" data-dir="-1">-</button>
-                        <input type="number" name="qty" id="modal-qty" value="1" min="1" class="w-16 text-center text-lg font-bold border rounded">
-                        <button type="button" class="qty-btn w-10 h-10 rounded-full bg-gray-200 text-lg font-bold" data-dir="1">+</button>
+                        <button type="button" class="qty-btn w-10 h-10 rounded-full bg-very-light-gray text-lg font-bold text-slate-btn hover:bg-light-border" data-dir="-1">-</button>
+                        <input type="number" name="qty" id="modal-qty" value="1" min="1" class="w-16 text-center text-lg font-bold border border-light-border rounded-6 text-deep-charcoal">
+                        <button type="button" class="qty-btn w-10 h-10 rounded-full bg-very-light-gray text-lg font-bold text-slate-btn hover:bg-light-border" data-dir="1">+</button>
                     </div>
                 </div>
 
                 <div id="toppings-container" class="mb-4 hidden">
-                    <label class="block text-sm font-medium mb-2">Topping</label>
+                    <label class="block text-sm font-medium text-slate-btn mb-2">Topping</label>
                     <div id="toppings-list" class="space-y-2"></div>
                 </div>
 
-                <p class="text-lg font-bold mb-4">
+                <p class="text-lg font-bold text-deep-charcoal mb-4">
                     Rp <span id="modal-price">0</span>
                 </p>
 
                 <div class="flex gap-2">
-                    <button type="button" id="modal-close" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Batal</button>
-                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg">Tambah</button>
+                    <button type="button" id="modal-close" class="flex-1 px-3 py-3 bg-slate-btn text-white rounded-8 text-sm font-semibold h-12 hover:bg-gray-600 transition">Batal</button>
+                    <button type="submit" class="flex-1 px-3 py-3 bg-success-green text-white rounded-8 text-sm font-semibold h-12 hover:bg-green-700 transition">Tambah</button>
                 </div>
             </form>
         </div>
@@ -183,14 +185,14 @@
                     container.classList.remove('hidden');
                     toppings.forEach(t => {
                         const label = document.createElement('label');
-                        label.className = 'flex items-center justify-between p-2 bg-gray-50 rounded cursor-pointer';
+                        label.className = 'flex items-center justify-between p-2 bg-very-light-gray rounded-6 cursor-pointer';
                         label.innerHTML = `
                             <div class="flex items-center gap-2">
-                                <input type="checkbox" class="topping-checkbox rounded"
+                                <input type="checkbox" class="topping-checkbox rounded border-light-border text-slate-btn"
                                     data-id="${t.id}" data-price="${t.price}" data-name="${t.name}">
-                                <span class="text-sm">${t.name}</span>
+                                <span class="text-sm text-deep-charcoal">${t.name}</span>
                             </div>
-                            <span class="text-sm text-blue-600">+Rp ${t.price.toLocaleString('id-ID')}</span>
+                            <span class="text-sm text-deep-charcoal font-semibold">+Rp ${t.price.toLocaleString('id-ID')}</span>
                         `;
                         list.appendChild(label);
                     });
@@ -277,11 +279,11 @@
         document.querySelectorAll('.category-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.category-btn').forEach(b => {
-                    b.classList.remove('bg-blue-600', 'text-white');
-                    b.classList.add('bg-gray-200', 'text-gray-700');
+                    b.classList.remove('bg-slate-btn', 'text-white');
+                    b.classList.add('bg-very-light-gray', 'text-slate-btn');
                 });
-                this.classList.remove('bg-gray-200', 'text-gray-700');
-                this.classList.add('bg-blue-600', 'text-white');
+                this.classList.remove('bg-very-light-gray', 'text-slate-btn');
+                this.classList.add('bg-slate-btn', 'text-white');
 
                 const cat = this.dataset.category;
                 document.querySelectorAll('.menu-card').forEach(card => {

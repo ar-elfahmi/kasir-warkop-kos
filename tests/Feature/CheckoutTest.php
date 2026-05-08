@@ -26,8 +26,8 @@ class CheckoutTest extends TestCase
     private function seedCart(): void
     {
         $cat = Category::create(['name' => 'Minuman']);
-        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi']);
-        $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 5000, 'stock' => 10]);
+        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi', 'stock' => 10]);
+        $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 5000]);
         $this->cart->addItem($variant->id, 2, []);
     }
 
@@ -92,8 +92,8 @@ class CheckoutTest extends TestCase
     {
         $user = User::factory()->create();
         $cat = Category::create(['name' => 'Makanan']);
-        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Mie']);
-        $variant = Variant::create(['menu_item_id' => $item->id, 'size' => null, 'price' => 7000, 'stock' => 10]);
+        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Mie', 'stock' => 10]);
+        $variant = Variant::create(['menu_item_id' => $item->id, 'size' => null, 'price' => 7000]);
         $topping = Topping::create(['name' => 'Telur', 'price' => 3000]);
         $this->cart->addItem($variant->id, 1, [['id' => $topping->id, 'price' => 3000, 'name' => 'Telur']]);
 
@@ -117,8 +117,8 @@ class CheckoutTest extends TestCase
     {
         $user = User::factory()->create();
         $cat = Category::create(['name' => 'Minuman']);
-        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi']);
-        $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 5000, 'stock' => 1]);
+        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi', 'stock' => 1]);
+        $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 5000]);
         $this->cart->addItem($variant->id, 2, []);
 
         $response = $this->actingAs($user)->post('/pos/checkout/process', [
@@ -135,8 +135,8 @@ class CheckoutTest extends TestCase
     {
         $user = User::factory()->create();
         $cat = Category::create(['name' => 'Minuman']);
-        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi']);
-        $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 5000, 'stock' => 10]);
+        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi', 'stock' => 10]);
+        $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 5000]);
         $this->cart->addItem($variant->id, 3, []);
 
         $this->actingAs($user)->post('/pos/checkout/process', [
@@ -144,8 +144,8 @@ class CheckoutTest extends TestCase
             'paid_amount' => 15000,
         ]);
 
-        $variant->refresh();
-        $this->assertEquals(7, $variant->stock);
+        $item->refresh();
+        $this->assertEquals(7, $item->stock);
     }
 
     public function test_checkout_requires_valid_payment_method(): void
@@ -203,5 +203,20 @@ class CheckoutTest extends TestCase
         $response->assertSee('10.000');
         $response->assertSee('20.000');
         $response->assertSee('Kembali');
+    }
+
+    public function test_checkout_tunai_requires_paid_amount_greater_or_equal_total(): void
+    {
+        $user = User::factory()->create();
+        $this->seedCart(); // Total = 10000
+
+        // Try to pay with less than total
+        $response = $this->actingAs($user)->post('/pos/checkout/process', [
+            'payment_method' => 'tunai',
+            'paid_amount' => 5000, // Less than total (10000)
+        ]);
+
+        $response->assertSessionHasErrors('paid_amount');
+        $this->assertDatabaseCount('transactions', 0);
     }
 }

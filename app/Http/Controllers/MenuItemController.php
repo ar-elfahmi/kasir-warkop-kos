@@ -25,6 +25,7 @@ class MenuItemController extends Controller
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'stock' => ['required', 'integer', 'min:0'],
         ]);
 
         MenuItem::create($validated);
@@ -47,6 +48,7 @@ class MenuItemController extends Controller
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'stock' => ['required', 'integer', 'min:0'],
         ]);
 
         $menuItem->update($validated);

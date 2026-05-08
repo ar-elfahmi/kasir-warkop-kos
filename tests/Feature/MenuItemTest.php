@@ -21,12 +21,14 @@ class MenuItemTest extends TestCase
             'category_id' => $category->id,
             'name' => 'Kopi Susu',
             'description' => 'Kopi dengan susu segar',
+            'stock' => 100,
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('menu_items', [
             'name' => 'Kopi Susu',
             'category_id' => $category->id,
+            'stock' => 100,
         ]);
     }
 }
