@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\MenuItem;
-use App\Models\Topping;
 use App\Models\User;
 use App\Models\Variant;
 use App\Services\CartService;
@@ -28,7 +27,7 @@ class CheckoutTest extends TestCase
         $cat = Category::create(['name' => 'Minuman']);
         $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi', 'stock' => 10]);
         $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 5000]);
-        $this->cart->addItem($variant->id, 2, []);
+        $this->cart->addItem($variant->id, 2);
     }
 
     public function test_checkout_page_shows_cart_summary(): void
@@ -88,38 +87,13 @@ class CheckoutTest extends TestCase
         ]);
     }
 
-    public function test_checkout_with_toppings(): void
-    {
-        $user = User::factory()->create();
-        $cat = Category::create(['name' => 'Makanan']);
-        $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Mie', 'stock' => 10]);
-        $variant = Variant::create(['menu_item_id' => $item->id, 'size' => null, 'price' => 7000]);
-        $topping = Topping::create(['name' => 'Telur', 'price' => 3000]);
-        $this->cart->addItem($variant->id, 1, [['id' => $topping->id, 'price' => 3000, 'name' => 'Telur']]);
-
-        $response = $this->actingAs($user)->post('/pos/checkout/process', [
-            'payment_method' => 'tunai',
-            'paid_amount' => 10000,
-        ]);
-
-        $response->assertRedirect('/pos/receipt/1');
-        $this->assertDatabaseHas('transaction_items', [
-            'transaction_id' => 1,
-            'qty' => 1,
-            'unit_price' => 7000,
-        ]);
-        // Check receipt page shows topping
-        $receipt = $this->actingAs($user)->get('/pos/receipt/1');
-        $receipt->assertSee('Telur');
-    }
-
     public function test_checkout_fails_when_stock_insufficient(): void
     {
         $user = User::factory()->create();
         $cat = Category::create(['name' => 'Minuman']);
         $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi', 'stock' => 1]);
         $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 5000]);
-        $this->cart->addItem($variant->id, 2, []);
+        $this->cart->addItem($variant->id, 2);
 
         $response = $this->actingAs($user)->post('/pos/checkout/process', [
             'payment_method' => 'tunai',
@@ -137,7 +111,7 @@ class CheckoutTest extends TestCase
         $cat = Category::create(['name' => 'Minuman']);
         $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi', 'stock' => 10]);
         $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 5000]);
-        $this->cart->addItem($variant->id, 3, []);
+        $this->cart->addItem($variant->id, 3);
 
         $this->actingAs($user)->post('/pos/checkout/process', [
             'payment_method' => 'tunai',
@@ -208,12 +182,11 @@ class CheckoutTest extends TestCase
     public function test_checkout_tunai_requires_paid_amount_greater_or_equal_total(): void
     {
         $user = User::factory()->create();
-        $this->seedCart(); // Total = 10000
+        $this->seedCart();
 
-        // Try to pay with less than total
         $response = $this->actingAs($user)->post('/pos/checkout/process', [
             'payment_method' => 'tunai',
-            'paid_amount' => 5000, // Less than total (10000)
+            'paid_amount' => 5000,
         ]);
 
         $response->assertSessionHasErrors('paid_amount');

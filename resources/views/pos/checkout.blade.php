@@ -10,21 +10,11 @@
                     $itemName = $variant?->menuItem?->name ?? 'Item';
                     $sizeLabel = $variant?->size ? ucfirst($variant->size) : 'Reguler';
                     $subtotal = ($variant?->price ?? 0) * $item['qty'];
-                    foreach ($item['toppings'] as $t) {
-                        $subtotal += $t['price'] * $item['qty'];
-                    }
                 @endphp
                 <div class="flex justify-between py-2 border-b border-light-border text-sm">
                     <div>
                         <p class="font-semibold text-deep-charcoal">{{ $itemName }}</p>
                         <p class="text-zinc-text text-xs">{{ $sizeLabel }} x{{ $item['qty'] }}</p>
-                        @if (!empty($item['toppings']))
-                            <p class="text-xs text-light-gray">
-                                @foreach ($item['toppings'] as $t)
-                                    + {{ $t['name'] }}@if (!$loop->last), @endif
-                                @endforeach
-                            </p>
-                        @endif
                     </div>
                     <p class="font-semibold text-deep-charcoal">Rp {{ number_format($subtotal, 0, ',', '.') }}</p>
                 </div>

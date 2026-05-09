@@ -19,9 +19,6 @@
                         <div>
                             <p class="font-semibold text-deep-charcoal">{{ $item->item_name }}</p>
                             <p class="text-xs text-zinc-text">{{ $item->variant_label }} x{{ $item->qty }}</p>
-                            @foreach ($item->toppings as $topping)
-                                <p class="text-xs text-light-gray ml-2">+ {{ $topping->topping_name }}</p>
-                            @endforeach
                         </div>
                         <p class="font-semibold text-deep-charcoal">Rp {{ number_format($item->total_price, 0, ',', '.') }}</p>
                     </div>

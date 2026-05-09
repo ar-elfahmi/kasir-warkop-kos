@@ -12,7 +12,7 @@
                     <x-nav-link :href="route('pos.index')" :active="request()->routeIs('pos.*')">
                         POS
                     </x-nav-link>
-                    <x-nav-link :href="route('menu-items.index')" :active="request()->routeIs('menu-items.*') || request()->routeIs('categories.*') || request()->routeIs('variants.*') || request()->routeIs('toppings.*')">
+                    <x-nav-link :href="route('menu-items.index')" :active="request()->routeIs('menu-items.*') || request()->routeIs('categories.*') || request()->routeIs('variants.*')">
                         Menu
                     </x-nav-link>
                     <x-nav-link :href="route('laporan.index')" :active="request()->routeIs('laporan.*')">
@@ -70,7 +70,7 @@
             <x-responsive-nav-link :href="route('pos.index')" :active="request()->routeIs('pos.*')">
                 POS
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('menu-items.index')" :active="request()->routeIs('menu-items.*') || request()->routeIs('categories.*') || request()->routeIs('variants.*') || request()->routeIs('toppings.*')">
+            <x-responsive-nav-link :href="route('menu-items.index')" :active="request()->routeIs('menu-items.*') || request()->routeIs('categories.*') || request()->routeIs('variants.*')">
                 Menu
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('laporan.index')" :active="request()->routeIs('laporan.*')">

@@ -80,7 +80,7 @@ class ReportController extends Controller
 
     public function detail(Transaction $transaction)
     {
-        $transaction->load('items.toppings');
+        $transaction->load('items');
 
         return view('laporan.detail', compact('transaction'));
     }

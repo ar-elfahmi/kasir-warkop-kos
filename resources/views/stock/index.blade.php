@@ -2,9 +2,14 @@
     <div class="max-w-4xl mx-auto p-4">
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-xl font-bold text-deep-charcoal">Stok</h1>
-            <a href="/stock/restock" class="px-3 py-3 bg-success-green text-white rounded-8 text-sm font-semibold h-12 inline-flex items-center hover:bg-green-700 transition">
-                + Tambah Stok
-            </a>
+            <div class="flex gap-2">
+                <a href="/stock/restock" class="px-3 py-3 bg-success-green text-white rounded-8 text-sm font-semibold h-12 inline-flex items-center hover:bg-green-700 transition">
+                    + Tambah Stok
+                </a>
+                <a href="/stock/adjust" class="px-3 py-3 bg-success-green text-white rounded-8 text-sm font-semibold h-12 inline-flex items-center hover:bg-green-700 transition">
+                    Koreksi Stok
+                </a>
+            </div>
         </div>
 
         <div class="bg-white border border-light-border rounded-8 overflow-hidden shadow-l1 mb-6">

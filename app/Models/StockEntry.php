@@ -9,7 +9,7 @@ class StockEntry extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['menu_item_id', 'quantity', 'note'];
+    protected $fillable = ['menu_item_id', 'quantity', 'note', 'type'];
 
     public function menuItem()
     {

@@ -26,8 +26,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('menu-items', MenuItemController::class);
     Route::resource('variants', \App\Http\Controllers\VariantController::class);
-    Route::resource('toppings', \App\Http\Controllers\ToppingController::class);
-    Route::post('/menu-items/toppings', [\App\Http\Controllers\ToppingController::class, 'assignToMenuItem'])->name('toppings.assign');
 
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
 
@@ -43,6 +41,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
     Route::get('/stock/restock', [StockController::class, 'restock'])->name('stock.restock');
     Route::post('/stock/restock', [StockController::class, 'store'])->name('stock.store');
+    Route::get('/stock/adjust', [StockController::class, 'adjust'])->name('stock.adjust');
+    Route::post('/stock/adjust', [StockController::class, 'storeAdjust'])->name('stock.adjust.store');
 
     Route::get('/laporan', [ReportController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/{transaction}', [ReportController::class, 'detail'])->name('laporan.detail');

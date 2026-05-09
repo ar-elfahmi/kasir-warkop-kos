@@ -4,10 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\MenuItem;
-use App\Models\Topping;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
-use App\Models\TransactionItemTopping;
 use App\Models\User;
 use App\Models\Variant;
 use Illuminate\Foundation\Testing\RefreshDatabase;

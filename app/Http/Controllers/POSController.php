@@ -16,7 +16,7 @@ class POSController extends Controller
     public function index()
     {
         $categories = Category::all();
-        $menuItems = MenuItem::with('variants', 'toppings', 'category')->get();
+        $menuItems = MenuItem::with('variants', 'category')->get();
         $cartItems = $this->cart->items();
         $cartTotal = $this->cart->total();
 
@@ -28,16 +28,11 @@ class POSController extends Controller
         $validated = $request->validate([
             'variant_id' => 'required|exists:variants,id',
             'qty' => 'required|integer|min:1',
-            'toppings' => 'nullable|array',
-            'toppings.*.id' => 'required|exists:toppings,id',
-            'toppings.*.price' => 'required|integer|min:0',
-            'toppings.*.name' => 'required|string',
         ]);
 
         $this->cart->addItem(
             $validated['variant_id'],
-            $validated['qty'],
-            $validated['toppings'] ?? []
+            $validated['qty']
         );
 
         return redirect('/pos');

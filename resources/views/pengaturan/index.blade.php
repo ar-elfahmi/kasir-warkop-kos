@@ -47,9 +47,6 @@
             <div class="bg-white border border-light-border rounded-8 p-4 shadow-l1">
                 <h2 class="font-semibold text-deep-charcoal mb-3">Menu Lainnya</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <a href="{{ route('toppings.index') }}" class="px-4 py-3 bg-very-light-gray rounded-8 text-sm font-semibold text-slate-btn hover:bg-light-border transition">
-                        Kelola Topping
-                    </a>
                     <a href="{{ route('categories.index') }}" class="px-4 py-3 bg-very-light-gray rounded-8 text-sm font-semibold text-slate-btn hover:bg-light-border transition">
                         Kelola Kategori
                     </a>

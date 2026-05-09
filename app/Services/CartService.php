@@ -13,10 +13,10 @@ class CartService
         return Session::get(self::SESSION_KEY, []);
     }
 
-    public function addItem(int $variantId, int $qty, array $toppings): string
+    public function addItem(int $variantId, int $qty): string
     {
         $items = $this->items();
-        $key = $this->generateKey($variantId, $toppings);
+        $key = (string) $variantId;
 
         if (isset($items[$key])) {
             $items[$key]['qty'] += $qty;
@@ -24,7 +24,6 @@ class CartService
             $items[$key] = [
                 'variant_id' => $variantId,
                 'qty' => $qty,
-                'toppings' => $toppings,
             ];
         }
 
@@ -47,9 +46,6 @@ class CartService
             $variant = \App\Models\Variant::find($item['variant_id']);
             if (!$variant) continue;
             $total += $variant->price * $item['qty'];
-            foreach ($item['toppings'] as $topping) {
-                $total += $topping['price'] * $item['qty'];
-            }
         }
 
         return $total;
@@ -60,11 +56,4 @@ class CartService
         Session::forget(self::SESSION_KEY);
     }
 
-    private function generateKey(int $variantId, array $toppings): string
-    {
-        $toppingIds = array_map(fn($t) => $t['id'] ?? '', $toppings);
-        sort($toppingIds);
-
-        return $variantId . '_' . implode('_', $toppingIds);
     }
-}

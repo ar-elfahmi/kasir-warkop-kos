@@ -4,7 +4,6 @@ namespace Tests\Unit;
 
 use App\Models\Category;
 use App\Models\MenuItem;
-use App\Models\Topping;
 use App\Models\Variant;
 use App\Services\CartService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,27 +27,10 @@ class CartServiceTest extends TestCase
         $item = MenuItem::create(['category_id' => $category->id, 'name' => 'Kopi']);
         $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 7000, 'stock' => 100]);
 
-        $this->cart->addItem($variant->id, 1, []);
+        $this->cart->addItem($variant->id, 1);
 
         $this->assertCount(1, $this->cart->items());
         $this->assertEquals(7000, $this->cart->total());
-    }
-
-    public function test_can_add_item_with_toppings()
-    {
-        $category = Category::create(['name' => 'Makanan']);
-        $item = MenuItem::create(['category_id' => $category->id, 'name' => 'Nasi Goreng']);
-        $variant = Variant::create(['menu_item_id' => $item->id, 'size' => null, 'price' => 12000, 'stock' => 100]);
-        $topping1 = Topping::create(['name' => 'Telur', 'price' => 3000]);
-        $topping2 = Topping::create(['name' => 'Sosis', 'price' => 3000]);
-
-        $this->cart->addItem($variant->id, 1, [
-            ['id' => $topping1->id, 'price' => $topping1->price, 'name' => $topping1->name],
-            ['id' => $topping2->id, 'price' => $topping2->price, 'name' => $topping2->name],
-        ]);
-
-        $this->assertCount(1, $this->cart->items());
-        $this->assertEquals(18000, $this->cart->total()); // 12000 + 3000 + 3000
     }
 
     public function test_can_add_multiple_items()
@@ -59,11 +41,11 @@ class CartServiceTest extends TestCase
         $item2 = MenuItem::create(['category_id' => $cat->id, 'name' => 'Teh']);
         $variant2 = Variant::create(['menu_item_id' => $item2->id, 'size' => 'besar', 'price' => 8000, 'stock' => 100]);
 
-        $this->cart->addItem($variant1->id, 2, []);
-        $this->cart->addItem($variant2->id, 1, []);
+        $this->cart->addItem($variant1->id, 2);
+        $this->cart->addItem($variant2->id, 1);
 
         $this->assertCount(2, $this->cart->items());
-        $this->assertEquals(22000, $this->cart->total()); // 2*7000 + 8000
+        $this->assertEquals(22000, $this->cart->total());
     }
 
     public function test_can_clear_cart()
@@ -72,7 +54,7 @@ class CartServiceTest extends TestCase
         $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi']);
         $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 7000, 'stock' => 100]);
 
-        $this->cart->addItem($variant->id, 1, []);
+        $this->cart->addItem($variant->id, 1);
         $this->cart->clear();
 
         $this->assertCount(0, $this->cart->items());
@@ -85,7 +67,7 @@ class CartServiceTest extends TestCase
         $item = MenuItem::create(['category_id' => $cat->id, 'name' => 'Kopi']);
         $variant = Variant::create(['menu_item_id' => $item->id, 'size' => 'small', 'price' => 7000, 'stock' => 100]);
 
-        $cartKey = $this->cart->addItem($variant->id, 1, []);
+        $cartKey = $this->cart->addItem($variant->id, 1);
         $this->assertCount(1, $this->cart->items());
 
         $this->cart->removeItem($cartKey);

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\MenuItem;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
-use App\Models\TransactionItemTopping;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -100,9 +99,6 @@ class CheckoutController extends Controller
                     }
 
                     $itemTotal = $variant->price * $item['qty'];
-                    foreach ($item['toppings'] as $t) {
-                        $itemTotal += $t['price'] * $item['qty'];
-                    }
 
                     $transactionItem = TransactionItem::create([
                         'transaction_id' => $transaction->id,
@@ -113,15 +109,6 @@ class CheckoutController extends Controller
                         'unit_price' => $variant->price,
                         'total_price' => $itemTotal,
                     ]);
-
-                    foreach ($item['toppings'] as $t) {
-                        TransactionItemTopping::create([
-                            'transaction_item_id' => $transactionItem->id,
-                            'topping_id' => $t['id'],
-                            'topping_name' => $t['name'],
-                            'topping_price' => $t['price'],
-                        ]);
-                    }
 
                     // Decrement menuItem.stock
                     $menuItem = $variant->menuItem;
@@ -143,7 +130,7 @@ class CheckoutController extends Controller
 
     public function receipt(Transaction $transaction)
     {
-        $transaction->load('items.toppings');
+        $transaction->load('items');
 
         return view('pos.receipt', compact('transaction'));
     }

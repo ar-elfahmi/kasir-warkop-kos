@@ -68,9 +68,6 @@
             <a href="{{ route('categories.index') }}" class="px-3 py-3 bg-slate-btn text-white rounded-8 text-sm font-semibold h-12 inline-flex items-center hover:bg-gray-600 transition">
                 Kelola Kategori
             </a>
-            <a href="{{ route('toppings.index') }}" class="px-3 py-3 bg-slate-btn text-white rounded-8 text-sm font-semibold h-12 inline-flex items-center hover:bg-gray-600 transition">
-                Kelola Topping
-            </a>
         </div>
     </div>
 </x-app-layout>

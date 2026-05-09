@@ -13,6 +13,7 @@
 | Transaksi | Pencatatan penjualan: pilih menu → qty → topping → bayar |
 | Stok | Jumlah barang jadi (finished goods), otomatis berkurang saat transaksi |
 | Restock | Input manual penambahan stok (stok masuk) |
+| Adjustment | Koreksi stok manual (tambah atau kurangi) dengan catatan alasan |
 | Laporan | Rekap penjualan harian per kategori dan item |
 
 ## Tech Stack

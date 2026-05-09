@@ -31,7 +31,6 @@
                                          data-variant-label="{{ $variant->size ? ucfirst($variant->size) : 'Reguler' }}"
                                          data-variant-price="{{ $variant->price }}"
                                          data-item-name="{{ $item->name }}"
-                                         data-toppings='@json($item->toppings->map(fn($t) => ['id' => $t->id, 'name' => $t->name, 'price' => $t->price]))'
                                          data-stock="{{ $item->stock }}">
                                          <span class="font-medium text-deep-charcoal">{{ $variant->size ? ucfirst($variant->size) : 'Reguler' }}</span>
                                          <span class="text-deep-charcoal font-semibold">Rp {{ number_format($variant->price, 0, ',', '.') }}</span>
@@ -60,25 +59,12 @@
                         $itemName = $variant?->menuItem?->name ?? 'Item';
                         $sizeLabel = $variant?->size ? ucfirst($variant->size) : 'Reguler';
                         $subtotal = ($variant?->price ?? 0) * $item['qty'];
-                        foreach ($item['toppings'] as $t) {
-                            $subtotal += $t['price'] * $item['qty'];
-                        }
                     @endphp
                     <div class="bg-very-light-gray rounded-8 p-3 text-sm">
                         <div class="flex justify-between items-start">
                             <div class="flex-1">
                                 <p class="font-semibold text-deep-charcoal">{{ $itemName }}</p>
                                 <p class="text-zinc-text text-xs">{{ $sizeLabel }} x{{ $item['qty'] }}</p>
-                                @if (!empty($item['toppings']))
-                                    <p class="text-xs text-light-gray">
-                                        @foreach ($item['toppings'] as $t)
-                                            + {{ $t['name'] }}
-                                            @if (!$loop->last)
-                                                ,
-                                            @endif
-                                        @endforeach
-                                    </p>
-                                @endif
                             </div>
                             <div class="text-right flex-shrink-0 ml-2">
                                 <p class="font-semibold text-deep-charcoal">Rp {{ number_format($subtotal, 0, ',', '.') }}</p>
@@ -136,10 +122,7 @@
                     </div>
                 </div>
 
-                <div id="toppings-container" class="mb-4 hidden">
-                    <label class="block text-sm font-medium text-slate-btn mb-2">Topping</label>
-                    <div id="toppings-list" class="space-y-2"></div>
-                </div>
+                <div class="mb-4">
 
                 <p class="text-lg font-bold text-deep-charcoal mb-4">
                     Rp <span id="modal-price">0</span>
@@ -155,7 +138,6 @@
 
     <script>
         let selectedVariant = null;
-        let selectedToppings = [];
         let basePrice = 0;
 
         document.querySelectorAll('.variant-btn').forEach(btn => {
@@ -169,36 +151,11 @@
                     price: parseInt(this.dataset.variantPrice),
                 };
                 basePrice = selectedVariant.price;
-                selectedToppings = [];
 
                 document.getElementById('modal-item-name').textContent =
                     this.dataset.itemName + ' - ' + selectedVariant.label;
                 document.getElementById('modal-variant-id').value = selectedVariant.id;
                 document.getElementById('modal-qty').value = 1;
-
-                const toppings = JSON.parse(this.dataset.toppings || '[]');
-                const container = document.getElementById('toppings-container');
-                const list = document.getElementById('toppings-list');
-                list.innerHTML = '';
-
-                if (toppings.length > 0) {
-                    container.classList.remove('hidden');
-                    toppings.forEach(t => {
-                        const label = document.createElement('label');
-                        label.className = 'flex items-center justify-between p-2 bg-very-light-gray rounded-6 cursor-pointer';
-                        label.innerHTML = `
-                            <div class="flex items-center gap-2">
-                                <input type="checkbox" class="topping-checkbox rounded border-light-border text-slate-btn"
-                                    data-id="${t.id}" data-price="${t.price}" data-name="${t.name}">
-                                <span class="text-sm text-deep-charcoal">${t.name}</span>
-                            </div>
-                            <span class="text-sm text-deep-charcoal font-semibold">+Rp ${t.price.toLocaleString('id-ID')}</span>
-                        `;
-                        list.appendChild(label);
-                    });
-                } else {
-                    container.classList.add('hidden');
-                }
 
                 updatePrice();
                 document.getElementById('item-modal').classList.remove('hidden');
@@ -230,50 +187,10 @@
 
         document.getElementById('modal-qty').addEventListener('input', updatePrice);
 
-        document.querySelectorAll('.topping-checkbox').forEach(cb => {
-            cb.addEventListener('change', updatePrice);
-        });
-
-        document.getElementById('toppings-list').addEventListener('change', function(e) {
-            if (e.target.classList.contains('topping-checkbox')) {
-                updatePrice();
-            }
-        });
-
         function updatePrice() {
             const qty = parseInt(document.getElementById('modal-qty').value) || 1;
             let total = basePrice * qty;
-            document.querySelectorAll('.topping-checkbox:checked').forEach(cb => {
-                total += parseInt(cb.dataset.price) * qty;
-            });
             document.getElementById('modal-price').textContent = total.toLocaleString('id-ID');
-
-            const form = document.getElementById('add-to-cart-form');
-            document.querySelectorAll('.topping-input').forEach(el => el.remove());
-
-            document.querySelectorAll('.topping-checkbox:checked').forEach(cb => {
-                const idx = document.querySelectorAll('.topping-input').length;
-                const hId = document.createElement('input');
-                hId.type = 'hidden';
-                hId.name = `toppings[${idx}][id]`;
-                hId.value = cb.dataset.id;
-                hId.className = 'topping-input';
-                form.appendChild(hId);
-
-                const hPrice = document.createElement('input');
-                hPrice.type = 'hidden';
-                hPrice.name = `toppings[${idx}][price]`;
-                hPrice.value = cb.dataset.price;
-                hPrice.className = 'topping-input';
-                form.appendChild(hPrice);
-
-                const hName = document.createElement('input');
-                hName.type = 'hidden';
-                hName.name = `toppings[${idx}][name]`;
-                hName.value = cb.dataset.name;
-                hName.className = 'topping-input';
-                form.appendChild(hName);
-            });
         }
 
         document.querySelectorAll('.category-btn').forEach(btn => {

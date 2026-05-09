@@ -4,7 +4,6 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {{-- Edit Item Form --}}
-            <div class="bg-white border border-light-border rounded-8 p-4 shadow-l1">
                 <h2 class="font-semibold text-deep-charcoal mb-3">Detail Item</h2>
                 <form method="POST" action="{{ route('menu-items.update', $menuItem->id) }}" class="space-y-4">
                     @csrf @method('PUT')
@@ -115,43 +114,6 @@
                     </button>
                 </form>
             </div>
-
-            {{-- Manage Toppings --}}
-            <div class="bg-white border border-light-border rounded-8 p-4 shadow-l1 lg:col-span-2">
-                <h2 class="font-semibold text-deep-charcoal mb-3">Topping</h2>
-
-                @php
-                    $assignedToppingIds = $menuItem->toppings->pluck('id')->toArray();
-                    $allToppings = \App\Models\Topping::all();
-                @endphp
-
-                <form method="POST" action="{{ route('toppings.assign') }}" class="space-y-3">
-                    @csrf
-                    <input type="hidden" name="menu_item_id" value="{{ $menuItem->id }}">
-
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                        @forelse ($allToppings as $topping)
-                            <label class="flex items-center gap-2 p-2 bg-very-light-gray rounded-6 cursor-pointer text-sm">
-                                <input type="checkbox" name="topping_ids[]" value="{{ $topping->id }}"
-                                    {{ in_array($topping->id, $assignedToppingIds) ? 'checked' : '' }}
-                                    class="rounded border-light-border text-slate-btn">
-                                <span class="text-deep-charcoal">{{ $topping->name }} (+Rp {{ number_format($topping->price, 0, ',', '.') }})</span>
-                            </label>
-                        @empty
-                            <p class="text-light-gray col-span-full text-center py-4">
-                                Belum ada topping. Buat topping dulu.
-                            </p>
-                        @endforelse
-                    </div>
-
-                    @if ($allToppings->isNotEmpty())
-                        <button type="submit" class="px-3 py-3 bg-slate-btn text-white text-sm font-semibold rounded-8 h-12 hover:bg-gray-600 transition">
-                            Simpan Pengaturan Topping
-                        </button>
-                    @endif
-                </form>
-            </div>
-        </div>
 
         <div class="mt-4">
             <a href="{{ route('menu-items.index') }}" class="text-sm text-slate-btn hover:text-deep-charcoal">

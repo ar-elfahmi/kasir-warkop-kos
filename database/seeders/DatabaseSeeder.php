@@ -51,9 +51,6 @@ class DatabaseSeeder extends Seeder
             ['category_id' => 2, 'name' => 'Sedap Singapore Laksa'],
             ['category_id' => 2, 'name' => 'Spaghetti Carbonara'],
             ['category_id' => 2, 'name' => 'Spaghetti Bolognese'],
-            ['category_id' => 2, 'name' => 'Topping Telur'],
-            ['category_id' => 2, 'name' => 'Topping Sosis'],
-            ['category_id' => 2, 'name' => 'Topping Nugget'],
             ['category_id' => 3, 'name' => 'Kentang Goreng'],
             ['category_id' => 3, 'name' => 'Cireng'],
             ['category_id' => 3, 'name' => 'Sosis'],
@@ -74,7 +71,6 @@ class DatabaseSeeder extends Seeder
                 1 => 12000,
                 2 => match (true) {
                     str_contains($item['name'], 'Spaghetti') => 12000,
-                    str_contains($item['name'], 'Topping') => 3000,
                     default => 7000,
                 },
                 3 => 10000,
